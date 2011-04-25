@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+require File.dirname(__FILE__)+'/../config/environment'
+ActionMailer::Base.raise_delivery_errors = false
+ActionMailer::Base.delivery_method = :test
+
+# Arguments
+user_id = ARGV[0]
+project_name = ARGV[1].dup
+
+user = User.find(user_id)
+if !user
+  puts "The user id #{user_id} is invalid."
+  exit(1)
+end
+
+# Check if there's a project with the given name.
+if Project.find_by_title(project_name)
+  puts "There's already a project named #{project_name}."
+  exit(1)
+end
+
+project = Project.new :title => project_name, :slug => project_name,
+:description => 'Created by Lifthub',
+:owner_type => 'User', :owner => user, :user => user,
+:wiki_enabled => false
+if project.save
+  #puts "Project #{project_name} created successfully."
+else
+  puts "Failed creating project #{project_name}."
+  project.errors.each_full { |msg| puts msg }
+  exit(1)
+end
+
+# print the user ID so the caller can use it.
+puts project.id
