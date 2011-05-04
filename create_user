@@ -23,6 +23,7 @@ if user.save
   #puts "User #{email} created successfully."
 else
   puts "Failed creating user #{email}."
+  user.errors.each_full { |msg| puts msg }
   exit(1)
 end
 
