@@ -5,14 +5,15 @@ ActionMailer::Base.raise_delivery_errors = false
 ActionMailer::Base.delivery_method = :test
 
 # arguments
-email = ARGV[0]  #TODO should use User ID in Gitorious
-#user_id = ARGV[0]
+user_id = ARGV[0]
 key_file = ARGV[1]
 
-user = User.find_by_email(email)
-#user = User.find(user_id)
+#puts "user_id = #{user_id}"
+#puts "key_file = #{key_file}" 
+
+user = User.find(user_id)
 if !user
-  puts "User with the given email address #{email} doesn't exist."
+  puts "User of id #{user_id} doesn't exist."
   exit 1
 end
 
@@ -23,19 +24,30 @@ File::open(key_file) { |f|
   key_str = f.read
 }
 
+if key_str == ''
+  puts "key_str is empty."
+  exit 1
+end
+
+
 # Add SSH key
 ssh_key = user.ssh_keys.new
 ssh_key.key = key_str
 ssh_key.ready = true
 
 if ssh_key.save
-  puts "SSH Key for user #{email} created successfully."
+  puts "SSH Key for user #{user_id} created successfully."
 else
-  puts "Failed creating SSH key for user #{email}."
-  exit(1)
+  puts "ssh key = '" + key_str + "'"
+  puts "Failed creating SSH key for user #{user_id}."
+  ssh_key.errors.each_full { |msg| puts msg }
+  exit 1
 end
 
-SshKey.add_to_authorized_keys(ssh_key.to_key)
+if !SshKey.add_to_authorized_keys(ssh_key.to_key)
+  puts "Failed to save SSH Key for user #{user_id}."
+  exit 1
+end
 
 # Display the ID so the caller can use it.
 puts ssh_key.id
