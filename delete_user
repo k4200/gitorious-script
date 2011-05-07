@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+require File.dirname(__FILE__)+'/../config/environment'
+ActionMailer::Base.raise_delivery_errors = false
+ActionMailer::Base.delivery_method = :test
+
+# arguments
+
+user_id = ARGV[0]
+
+user = User.find(user_id)
+if !user
+  puts "User #{user_id} doesn't exist."
+  exit(1)
+end
+
+if !user.destroy
+  puts "Failed to delete user #{user_id}."
+  user.errors.each_full { |msg| puts msg }
+  exit(1)
+end
+
+# print a dummy number
+puts 0

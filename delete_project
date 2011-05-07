@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+#
+# Deletes a project.
+# 
+# If you delete a user, all the projects and repositories belonging to the user
+# will be deleted as well, and you don't need to call this script explicitly.
+#
+require File.dirname(__FILE__)+'/../config/environment'
+ActionMailer::Base.raise_delivery_errors = false
+ActionMailer::Base.delivery_method = :test
+
+# Arguments
+user_id = ARGV[0]
+project_name = ARGV[1].dup
+
+user = User.find(user_id)
+if !user
+  puts "The user id #{user_id} is invalid."
+  exit(1)
+end
+
+# Check the project name.
+project = Project.find_by_title(project_name)
+if !project
+  puts "There's no project named #{project_name}."
+  exit(1)
+end
+
+if project.owner != user
+  puts "User #{user_id} is not the owner of the project #{project_name}"
+  exit(1)
+end
+
+
+if project.destroy
+  #puts "Project #{project_name} deleted successfully."
+else
+  puts "Failed to delete project #{project_name}."
+  project.errors.each_full { |msg| puts msg }
+  exit(1)
+end
+
+# print a dummy number
+puts 0
