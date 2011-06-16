@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+require File.dirname(__FILE__)+'/../config/environment'
+ActionMailer::Base.raise_delivery_errors = false
+ActionMailer::Base.delivery_method = :test
+
+# arguments
+key_id = ARGV[0]
+
+ssh_key = SshKey.find(key_id)
+if !ssh_key
+  puts "SshKey of id #{key_id} doesn't exist."
+  exit 1
+end
+
+
+if ssh_key.destroy
+  #puts "SshKey #{key_id} deleted successfully."
+else
+  puts "Failed to delete ssk key #{key_id}."
+  ssh_key.errors.each_full { |msg| puts msg }
+  exit(1)
+end
+
+# Display the ID so the caller can use it.
+puts ssh_key.id
