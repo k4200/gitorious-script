@@ -11,12 +11,12 @@ ActionMailer::Base.raise_delivery_errors = false
 ActionMailer::Base.delivery_method = :test
 
 # Arguments
-project_id = ARGV[0]
+project_name = ARGV[0]
 
 # Check the project name.
-project = Project.find(project_id)
+project = Project.find_by_title(project_name)
 if !project
-  puts "There's no project with the id #{project_id}."
+  puts "There's no project with the title #{project_name}."
   exit(1)
 end
 
